@@ -2,6 +2,9 @@ import math
 import time
 import random
 from multiprocessing import Pool, cpu_count
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+
+
 
 # Kiểm tra số nguyên tố tuần tự
 def is_prime(x):
@@ -22,13 +25,14 @@ def process_chunk(chunk):
 
 # Hàm kiểm tra danh sách số song song
 def check_primes_parallel(numbers):
-    num_processes = cpu_count()  # Số tiến trình
+    num_processes = 4  # Số tiến trình
     chunk_size = len(numbers) // num_processes  # Kích thước mỗi nhóm
     chunks = [numbers[i:i + chunk_size] for i in range(0, len(numbers), chunk_size)]
 
-    with Pool(num_processes) as pool:
-        results = pool.map(process_chunk, chunks)
-    return [item for sublist in results for item in sublist]  # Gộp kết quả
+    with ThreadPoolExecutor() as executor:
+        results = list(executor.map(is_prime, numbers))
+    return results
+    # return [item for sublist in results for item in sublist]  # Gộp kết quả
 
 # Hàm kiểm tra danh sách số tuần tự
 def check_primes_sequential(numbers):
